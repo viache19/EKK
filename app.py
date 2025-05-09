@@ -1,53 +1,56 @@
-from flask import Flask, render_template, send_from_directory, Response
+from flask import Flask, render_template, send_from_directory, request, abort
 import os
-from werkzeug.serving import run_simple
-from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
-app.wsgi_app = ProxyFix(app.wsgi_app)
 
-# Configuración de las carpetas de contenido
-CONTENT_FOLDERS = {
-    'books': 'content/books',
-    'audio': 'content/audio',
-    'videos': 'content/videos',
-    'images': 'content/images',
-    'text': 'content/text'
-}
+MEDIA_ROOT = "content"  # Carpeta raíz para los archivos multimedia
 
-# Crear las carpetas si no existen
-for folder in CONTENT_FOLDERS.values():
-    os.makedirs(folder, exist_ok=True)
+def get_items(path=""):
+    abs_path = os.path.join(MEDIA_ROOT, path)
+    if not os.path.exists(abs_path):
+        return [], path
+    items = []
+    for name in sorted(os.listdir(abs_path)):
+        full = os.path.join(abs_path, name)
+        if os.path.isdir(full):
+            items.append({"name": name, "type": "folder"})
+        else:
+            ext = os.path.splitext(name)[1].lower()
+            if ext in [".jpg", ".jpeg", ".png", ".gif"]:
+                ftype = "image"
+            elif ext in [".mp4", ".webm", ".mov", ".mkv"]:
+                ftype = "video"
+            elif ext in [".mp3", ".wav", ".ogg"]:
+                ftype = "audio"
+            elif ext in [".pdf"]:
+                ftype = "pdf"
+            else:
+                ftype = "file"
+            items.append({"name": name, "type": ftype})
+    return items, path
 
-# Cache de archivos para mejorar el rendimiento
-file_cache = {}
-
-def get_files(category):
-    if category not in file_cache:
-        try:
-            files = os.listdir(CONTENT_FOLDERS[category])
-            file_cache[category] = files
-        except Exception:
-            file_cache[category] = []
-    return file_cache[category]
-
-@app.route('/')
+@app.route("/")
 def index():
-    content = {category: get_files(category) for category in CONTENT_FOLDERS}
-    return render_template('index.html', content=content)
+    rel_path = request.args.get("path", "").strip("/")
+    items, path = get_items(rel_path)
+    breadcrumbs = []
+    if rel_path:
+        parts = rel_path.split("/")
+        for i in range(len(parts)):
+            breadcrumbs.append({
+                "name": parts[i],
+                "path": "/".join(parts[:i+1])
+            })
+    return render_template("index.html", items=items, path=rel_path, breadcrumbs=breadcrumbs)
 
-@app.route('/content/<category>/<filename>')
-def serve_content(category, filename):
-    if category in CONTENT_FOLDERS:
-        response = send_from_directory(CONTENT_FOLDERS[category], filename)
-        # Configurar headers para mejor rendimiento
-        response.headers['Cache-Control'] = 'public, max-age=31536000'
-        return response
-    return "Archivo no encontrado", 404
+@app.route("/media/<path:filename>")
+def media(filename):
+    directory = os.path.join(MEDIA_ROOT, os.path.dirname(filename))
+    fname = os.path.basename(filename)
+    if not os.path.exists(os.path.join(directory, fname)):
+        abort(404)
+    return send_from_directory(directory, fname)
 
-if __name__ == '__main__':
-    # Usar run_simple en lugar de app.run para mejor rendimiento
-    run_simple('0.0.0.0', 8080, app, 
-               use_reloader=False,  # Desactivar reloader en producción
-               use_debugger=False,  # Desactivar debugger en producción
-               threaded=True)       # Habilitar threading para mejor rendimiento 
+if __name__ == "__main__":
+    os.makedirs(MEDIA_ROOT, exist_ok=True)
+    app.run("0.0.0.0", 8080, debug=True) 

@@ -2,155 +2,91 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca de Supervivencia</title>
-    <!-- Tailwind CSS CDN (versión optimizada) -->
+    <title>EKK - Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#0066cc',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        /* Estilos base optimizados */
-        .media-container {
-            @apply mt-4 text-center;
+        .thumb {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+            background: #222;
         }
-        .media-container video,
-        .media-container audio {
-            @apply max-w-full h-auto;
-        }
-        .media-container img {
-            @apply max-w-full h-auto;
+        @media (max-width: 640px) {
+            .thumb { aspect-ratio: 16/9; }
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <h1 class="text-3xl font-bold mb-8 text-center">Biblioteca de Supervivencia</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for category, files in content.items() %}
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-                <button type="button" class="w-full flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 focus:outline-none category-toggle">
-                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ category|title }}</h2>
-                    <svg class="w-6 h-6 text-gray-400 transition-transform duration-200 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-                <div class="category-content hidden transition-all duration-200">
-                    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-                        {% for file in files %}
-                        <li>
-                            <div class="flex items-center justify-between p-4">
-                                <span class="flex-1 truncate">{{ file }}</span>
-                                <button type="button" class="file-toggle focus:outline-none ml-2">
-                                    <svg class="w-5 h-5 text-gray-400 transition-transform duration-200 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="file-content hidden px-4 pb-4"></div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div class="flex flex-col sm:flex-row items-center justify-center mb-6 gap-4">
+            <h1 class="text-2xl sm:text-4xl font-bold text-center text-orange-400">Emergency Knowledge Kit</h1>
+            <a href="/" class="inline-flex items-center px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded shadow transition focus:outline-none focus:ring-2 focus:ring-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
+                </svg>
+                Home
+            </a>
+        </div>
+        <nav class="mb-6 text-xs sm:text-sm text-gray-400 flex flex-wrap items-center gap-1">
+            <a href="/" class="hover:underline focus:underline focus:outline-none">Inicio</a>
+            {% for crumb in breadcrumbs %}
+                <span>/</span>
+                <a href="/?path={{ crumb.path }}" class="hover:underline focus:underline focus:outline-none">{{ crumb.name }}</a>
+            {% endfor %}
+        </nav>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
+            {% for item in items %}
+                {% if item.type == 'folder' %}
+                    <a href="/?path={{ path ~ '/' if path else '' }}{{ item.name }}" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-orange-400 group-hover:bg-orange-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'image' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <img src="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" class="rounded-lg thumb group-hover:ring-4 group-hover:ring-orange-400 transition" alt="{{ item.name }}">
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'video' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <video src="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" class="rounded-lg thumb group-hover:ring-4 group-hover:ring-orange-400 transition" controls muted preload="metadata"></video>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'audio' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-blue-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-blue-400 group-hover:bg-blue-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'pdf' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-red-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-red-400 group-hover:bg-red-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% else %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-gray-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-gray-400 group-hover:bg-gray-700 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
-
-    <script>
-        // Acordeón para mostrar/ocultar contenido de cada categoría
-        document.querySelectorAll('.category-toggle').forEach((btn) => {
-            btn.addEventListener('click', function() {
-                const content = btn.parentElement.querySelector('.category-content');
-                const arrow = btn.querySelector('svg');
-                if (content.classList.contains('hidden')) {
-                    content.classList.remove('hidden');
-                    arrow.classList.add('rotate-90');
-                } else {
-                    content.classList.add('hidden');
-                    arrow.classList.remove('rotate-90');
-                }
-            });
-        });
-
-        // Acordeón para cada archivo
-        document.querySelectorAll('.file-toggle').forEach((btn, idx) => {
-            btn.addEventListener('click', function() {
-                const li = btn.closest('li');
-                const content = li.querySelector('.file-content');
-                const arrow = btn.querySelector('svg');
-                if (content.classList.contains('hidden')) {
-                    // Cerrar otros abiertos en la misma categoría
-                    li.parentElement.querySelectorAll('.file-content').forEach(el => {
-                        if (el !== content) el.classList.add('hidden');
-                    });
-                    li.parentElement.querySelectorAll('.file-toggle svg').forEach(svg => {
-                        if (svg !== arrow) svg.classList.remove('rotate-90');
-                    });
-                    // Mostrar este
-                    content.classList.remove('hidden');
-                    arrow.classList.add('rotate-90');
-                    // Si no tiene contenido, cargarlo
-                    if (!content.hasChildNodes()) {
-                        // Limpiar contenido previo por si acaso
-                        content.innerHTML = '';
-                        const fileName = li.querySelector('span').textContent.trim();
-                        const category = li.closest('.bg-white, .dark\\:bg-gray-800').querySelector('h2').textContent.trim().toLowerCase();
-                        const ext = fileName.split('.').pop().toLowerCase();
-                        const url = `/content/${category}/${fileName}`;
-                        let mediaElement;
-                        if (["mp4", "webm"].includes(ext)) {
-                            mediaElement = document.createElement('video');
-                            mediaElement.controls = true;
-                            mediaElement.className = 'w-full rounded-lg shadow-lg';
-                            mediaElement.src = url;
-                        } else if (["mp3", "wav", "ogg"].includes(ext)) {
-                            mediaElement = document.createElement('audio');
-                            mediaElement.controls = true;
-                            mediaElement.className = 'w-full';
-                            mediaElement.src = url;
-                        } else if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
-                            mediaElement = document.createElement('img');
-                            mediaElement.className = 'w-full rounded-lg shadow-lg';
-                            mediaElement.loading = 'lazy';
-                            mediaElement.src = url;
-                        } else if (ext === "pdf") {
-                            mediaElement = document.createElement('a');
-                            mediaElement.href = url;
-                            mediaElement.target = '_blank'; // ¡esto es importante para que se abra en otra pestaña!
-                            mediaElement.textContent = 'Abrir PDF en nueva pestaña';
-                            mediaElement.className = 'text-blue-600 underline';
-                        } else {
-                            // No es multimedia, mostrar botón de descarga
-                            mediaElement = document.createElement('a');
-                            mediaElement.href = url;
-                            mediaElement.download = fileName;
-                            mediaElement.className = 'inline-block mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700';
-                            mediaElement.textContent = 'Descargar';
-                        }
-                        content.appendChild(mediaElement);
-                    }
-                } else {
-                    content.classList.add('hidden');
-                    arrow.classList.remove('rotate-90');
-                }
-            });
-        });
-
-        // Detectar preferencia de tema oscuro
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            document.documentElement.classList.add('dark');
-        }
-    </script>
 </body>
 </html> 
