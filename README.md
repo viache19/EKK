@@ -1,59 +1,60 @@
-# Biblioteca de Supervivencia
+# Emergency Knowledge Kit (EKK)
 
-Una aplicación web ligera para Raspberry Pi Zero 2W que sirve como biblioteca de conocimiento de supervivencia.
+Una biblioteca multimedia visual y responsive, diseñada para funcionar de manera eficiente en una Raspberry Pi Zero 2W. Permite navegar y visualizar archivos y carpetas multimedia desde cualquier dispositivo (PC, tablet, móvil) conectado a la red local.
 
 ## Características
+- Navegación sencilla y visual por carpetas y archivos multimedia (videos, imágenes, audio, PDF, etc.)
+- Interfaz moderna y responsive basada en Tailwind CSS
+- Compatible con ordenadores, tablets y móviles
+- Breadcrumbs para navegación rápida entre carpetas
+- Botón Home destacado junto al título para volver a la raíz
+- Visualización directa de imágenes y videos, y apertura de archivos en nueva pestaña
+- Sin dependencias pesadas: solo Flask y Tailwind CDN
+- Optimizado para bajo consumo de recursos y uso en Raspberry Pi Zero 2W
 
-- Reproducción de contenido multimedia (texto, imágenes, audio, video)
-- Interfaz simple y ligera
-- Organización por categorías
-- Compatible con Raspberry Pi Zero 2W
+## Estructura de carpetas
+Coloca todo tu contenido multimedia dentro de la carpeta `content` en la raíz del proyecto. Puedes crear subcarpetas libremente.
 
-## Estructura de Carpetas
-
-El contenido se organiza en las siguientes carpetas:
-
-- `content/books/` - Libros y documentos
-- `content/audio/` - Archivos de audio
-- `content/videos/` - Archivos de video
-- `content/images/` - Imágenes
-- `content/text/` - Archivos de texto
-
-## Instalación
-
-1. Instalar las dependencias:
-```bash
-pip install -r requirements.txt
+```
+content/
+├── Peliculas/
+│   ├── pelicula1.mp4
+│   └── portada.jpg
+├── Libros/
+│   └── libro1.pdf
+├── Musica/
+│   └── cancion.mp3
+└── ...
 ```
 
-2. Crear las carpetas de contenido (se crearán automáticamente al iniciar la aplicación)
+## Instalación y uso
+1. **Instala Flask:**
+   ```bash
+   pip install flask
+   ```
+2. **Estructura básica:**
+   - `app.py` (servidor Flask)
+   - `templates/index.html` (interfaz visual tipo galería)
+   - `content/` (tu carpeta multimedia)
 
-3. Iniciar la aplicación:
-```bash
-python app.py
-```
+3. **Ejecuta la app:**
+   ```bash
+   python app.py
+   ```
+   Accede a [http://localhost:8080](http://localhost:8080) desde cualquier dispositivo en tu red local.
 
-4. Acceder a la aplicación desde un navegador web:
-```
-http://[IP-DE-TU-RASPBERRY-PI]:8080
-```
+## Personalización
+- Cambia el título editando la línea correspondiente en `templates/index.html`.
+- Puedes modificar los colores y estilos fácilmente usando Tailwind.
 
-## Uso
+## Compatibilidad
+- Probado en Chrome, Firefox, Edge, Safari (PC y móvil)
+- Navegación táctil y con teclado
+- Visualización óptima en todos los tamaños de pantalla
+- Especialmente optimizado para Raspberry Pi Zero 2W
 
-1. Coloca los archivos en las carpetas correspondientes según su tipo
-2. Accede a la aplicación desde cualquier navegador web
-3. Navega por las diferentes categorías
-4. Haz clic en cualquier archivo para verlo o reproducirlo
+## Créditos
+- UI basada en Tailwind CSS CDN
 
-## Formatos Soportados
-
-- Texto: .txt, .pdf, .doc, .docx
-- Imágenes: .jpg, .jpeg, .png, .gif
-- Audio: .mp3, .wav, .ogg
-- Video: .mp4, .webm
-
-## Notas
-
-- La aplicación está optimizada para funcionar en Raspberry Pi Zero 2W
-- Se recomienda usar archivos de tamaño moderado para mejor rendimiento
-- La interfaz es responsive y funciona en dispositivos móviles 
+---
+¡Disfruta de tu Emergency Knowledge Kit visual, ligero y accesible en cualquier dispositivo conectado a tu Raspberry Pi Zero 2W! 
