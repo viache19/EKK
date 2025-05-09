@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca de Supervivencia</title>
+    <!-- Tailwind CSS CDN (versión optimizada) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0066cc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos base optimizados */
+        .media-container {
+            @apply mt-4 text-center;
+        }
+        .media-container video,
+        .media-container audio {
+            @apply max-w-full h-auto;
+        }
+        .media-container img {
+            @apply max-w-full h-auto;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <h1 class="text-3xl font-bold mb-8 text-center">Biblioteca de Supervivencia</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for category, files in content.items() %}
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <button type="button" class="w-full flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 focus:outline-none category-toggle">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">{{ category|title }}</h2>
+                    <svg class="w-6 h-6 text-gray-400 transition-transform duration-200 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <div class="category-content hidden transition-all duration-200">
+                    <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for file in files %}
+                        <li>
+                            <div class="flex items-center justify-between p-4">
+                                <span class="flex-1 truncate">{{ file }}</span>
+                                <button type="button" class="file-toggle focus:outline-none ml-2">
+                                    <svg class="w-5 h-5 text-gray-400 transition-transform duration-200 transform rotate-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="file-content hidden px-4 pb-4"></div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Acordeón para mostrar/ocultar contenido de cada categoría
+        document.querySelectorAll('.category-toggle').forEach((btn) => {
+            btn.addEventListener('click', function() {
+                const content = btn.parentElement.querySelector('.category-content');
+                const arrow = btn.querySelector('svg');
+                if (content.classList.contains('hidden')) {
+                    content.classList.remove('hidden');
+                    arrow.classList.add('rotate-90');
+                } else {
+                    content.classList.add('hidden');
+                    arrow.classList.remove('rotate-90');
+                }
+            });
+        });
+
+        // Acordeón para cada archivo
+        document.querySelectorAll('.file-toggle').forEach((btn, idx) => {
+            btn.addEventListener('click', function() {
+                const li = btn.closest('li');
+                const content = li.querySelector('.file-content');
+                const arrow = btn.querySelector('svg');
+                if (content.classList.contains('hidden')) {
+                    // Cerrar otros abiertos en la misma categoría
+                    li.parentElement.querySelectorAll('.file-content').forEach(el => {
+                        if (el !== content) el.classList.add('hidden');
+                    });
+                    li.parentElement.querySelectorAll('.file-toggle svg').forEach(svg => {
+                        if (svg !== arrow) svg.classList.remove('rotate-90');
+                    });
+                    // Mostrar este
+                    content.classList.remove('hidden');
+                    arrow.classList.add('rotate-90');
+                    // Si no tiene contenido, cargarlo
+                    if (!content.hasChildNodes()) {
+                        // Limpiar contenido previo por si acaso
+                        content.innerHTML = '';
+                        const fileName = li.querySelector('span').textContent.trim();
+                        const category = li.closest('.bg-white, .dark\\:bg-gray-800').querySelector('h2').textContent.trim().toLowerCase();
+                        const ext = fileName.split('.').pop().toLowerCase();
+                        const url = `/content/${category}/${fileName}`;
+                        let mediaElement;
+                        if (["mp4", "webm"].includes(ext)) {
+                            mediaElement = document.createElement('video');
+                            mediaElement.controls = true;
+                            mediaElement.className = 'w-full rounded-lg shadow-lg';
+                            mediaElement.src = url;
+                        } else if (["mp3", "wav", "ogg"].includes(ext)) {
+                            mediaElement = document.createElement('audio');
+                            mediaElement.controls = true;
+                            mediaElement.className = 'w-full';
+                            mediaElement.src = url;
+                        } else if (["jpg", "jpeg", "png", "gif"].includes(ext)) {
+                            mediaElement = document.createElement('img');
+                            mediaElement.className = 'w-full rounded-lg shadow-lg';
+                            mediaElement.loading = 'lazy';
+                            mediaElement.src = url;
+                        } else if (ext === "pdf") {
+                            mediaElement = document.createElement('a');
+                            mediaElement.href = url;
+                            mediaElement.target = '_blank'; // ¡esto es importante para que se abra en otra pestaña!
+                            mediaElement.textContent = 'Abrir PDF en nueva pestaña';
+                            mediaElement.className = 'text-blue-600 underline';
+                        } else {
+                            // No es multimedia, mostrar botón de descarga
+                            mediaElement = document.createElement('a');
+                            mediaElement.href = url;
+                            mediaElement.download = fileName;
+                            mediaElement.className = 'inline-block mt-2 px-4 py-2 bg-primary text-white rounded hover:bg-blue-700';
+                            mediaElement.textContent = 'Descargar';
+                        }
+                        content.appendChild(mediaElement);
+                    }
+                } else {
+                    content.classList.add('hidden');
+                    arrow.classList.remove('rotate-90');
+                }
+            });
+        });
+
+        // Detectar preferencia de tema oscuro
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+</body>
+</html> 
