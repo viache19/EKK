@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>EKK - Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .thumb {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            width: 100%;
+            height: auto;
+            background: #222;
+        }
+        @media (max-width: 640px) {
+            .thumb { aspect-ratio: 16/9; }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-2 sm:px-4 py-4 sm:py-8">
+        <div class="flex flex-col sm:flex-row items-center justify-center mb-6 gap-4">
+            <h1 class="text-2xl sm:text-4xl font-bold text-center text-orange-400">Emergency Knowledge Kit</h1>
+            <a href="/" class="inline-flex items-center px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded shadow transition focus:outline-none focus:ring-2 focus:ring-orange-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-6 sm:w-6 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6" />
+                </svg>
+                Home
+            </a>
+        </div>
+        <nav class="mb-6 text-xs sm:text-sm text-gray-400 flex flex-wrap items-center gap-1">
+            <a href="/" class="hover:underline focus:underline focus:outline-none">Inicio</a>
+            {% for crumb in breadcrumbs %}
+                <span>/</span>
+                <a href="/?path={{ crumb.path }}" class="hover:underline focus:underline focus:outline-none">{{ crumb.name }}</a>
+            {% endfor %}
+        </nav>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-6">
+            {% for item in items %}
+                {% if item.type == 'folder' %}
+                    <a href="/?path={{ path ~ '/' if path else '' }}{{ item.name }}" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-orange-400 group-hover:bg-orange-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'image' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <img src="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" class="rounded-lg thumb group-hover:ring-4 group-hover:ring-orange-400 transition" alt="{{ item.name }}">
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'video' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-orange-400 rounded">
+                        <video src="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" class="rounded-lg thumb group-hover:ring-4 group-hover:ring-orange-400 transition" controls muted preload="metadata"></video>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'audio' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-blue-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-blue-400 group-hover:bg-blue-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-2v13" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% elif item.type == 'pdf' %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-red-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-red-400 group-hover:bg-red-900 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% else %}
+                    <a href="/media/{{ path ~ '/' if path else '' }}{{ item.name }}" target="_blank" class="flex flex-col items-center group focus:outline-none focus:ring-2 focus:ring-gray-400 rounded">
+                        <div class="bg-gray-800 rounded-lg w-full thumb flex items-center justify-center text-4xl sm:text-5xl text-gray-400 group-hover:bg-gray-700 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 sm:h-12 sm:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <span class="mt-2 text-center truncate w-full text-xs sm:text-sm">{{ item.name }}</span>
+                    </a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html> 
