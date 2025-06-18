@@ -56,5 +56,5 @@ content/
 ## Créditos
 - UI basada en Tailwind CSS CDN
 
----
-¡Disfruta de tu Emergency Knowledge Kit visual, ligero y accesible en cualquier dispositivo conectado a tu Raspberry Pi Zero 2W! 
+----
+"README creado por la IA"
